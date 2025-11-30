@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BGI短影音課程後問卷 Canvas</title>
+    <script>
+        // Google Apps Script Web App URL
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw8bWx1DO6sDjRndDy9N0GEqcvJfnTgkYJ3vz7voBy-Xv_j1xyESrciiYhkuz_RDacn/exec';
+        
+        function submitForm(event) {
+            event.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = '送出中...';
+            
+            const formData = new FormData(event.target);
+            const data = {};
+            
+            for (let [key, value] of formData.entries()) {
+                if (data[key]) {
+                    if (Array.isArray(data[key])) {
+                        data[key].push(value);
+                    } else {
+                        data[key] = [data[key], value];
+                    }
+                } else {
+                    data[key] = value;
+                }
+            }
+            
+            // 處理複選題,轉換為逗號分隔的字串
+            for (let key in data) {
+                if (Array.isArray(data[key])) {
+                    data[key] = data[key].join(', ');
+                }
+            }
+            
+            // 添加時間戳記
+            data.timestamp = new Date().toLocaleString('zh-TW');
+            
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(() => {
+                document.getElementById('surveyForm').style.display = 'none';
+                document.getElementById('thankYouMessage').style.display = 'block';
+                window.scrollTo(0, 0);
+            })
+            .catch(error => {
+                alert('送出時發生錯誤,請稍後再試或聯繫Betty老師');
+                submitBtn.disabled = false;
+                submitBtn.textContent = '送出問卷';
+                console.error('Error:', error);
+            });
+        }
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #FFF5F0 0%, #FFE4D6 100%);
+            padding: 40px 20px;
+            line-height: 1.8;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding: 40px;
+            background: linear-gradient(135deg, #FF9B7A 0%, #FFB399 100%);
+            border-radius: 20px;
+            color: white;
+            box-shadow: 0 10px 30px rgba(255, 155, 122, 0.3);
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 1.3em;
+            opacity: 0.95;
+        }
+
+        .purpose-section {
+            background: white;
+            padding: 35px;
+            border-radius: 15px;
+            margin-bottom: 40px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+
+        .purpose-section h2 {
+            color: #FF9B7A;
+            font-size: 2em;
+            margin-bottom: 25px;
+            border-bottom: 3px solid #FFE4D6;
+            padding-bottom: 10px;
+        }
+
+        .purpose-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 25px;
+        }
+
+        .purpose-card {
+            background: linear-gradient(135deg, #FFF5F0 0%, #FFE4D6 100%);
+            padding: 25px;
+            border-radius: 12px;
+            border-left: 5px solid #FF9B7A;
+        }
+
+        .purpose-card h3 {
+            color: #FF6B45;
+            font-size: 1.3em;
+            margin-bottom: 10px;
+        }
+
+        .survey-section {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            border: 2px solid #FFE4D6;
+        }
+
+        .section-number {
+            display: inline-block;
+            background: #FF9B7A;
+            color: white;
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+            border-radius: 50%;
+            font-weight: bold;
+            margin-right: 15px;
+            font-size: 1.2em;
+        }
+
+        .section-title {
+            color: #333;
+            font-size: 1.8em;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+        }
+
+        .question {
+            background: #FFF5F0;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #FFB399;
+        }
+
+        .question-text {
+            font-size: 1.1em;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .question-type {
+            display: inline-block;
+            background: #FF9B7A;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            margin-top: 10px;
+        }
+
+        .question-options {
+            margin-top: 12px;
+            padding-left: 20px;
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        .highlight {
+            background: #FFF3CD;
+            padding: 3px 8px;
+            border-radius: 4px;
+            color: #856404;
+            font-weight: 600;
+        }
+
+        .special-note {
+            background: linear-gradient(135deg, #FFE4D6 0%, #FFEEE6 100%);
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 20px;
+            border: 2px dashed #FF9B7A;
+        }
+
+        .special-note h4 {
+            color: #FF6B45;
+            margin-bottom: 12px;
+            font-size: 1.3em;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 30px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+
+        .footer h3 {
+            color: #FF9B7A;
+            font-size: 1.8em;
+            margin-bottom: 15px;
+        }
+
+        .implementation-tip {
+            background: #E8F5E9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            border-left: 4px solid #4CAF50;
+        }
+
+        /* 表單輸入元素樣式 */
+        input[type="radio"],
+        input[type="checkbox"] {
+            margin-right: 10px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        textarea {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            border: 2px solid #FFE4D6;
+            border-radius: 8px;
+            font-size: 1em;
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #FF9B7A;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .radio-option,
+        .checkbox-option {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .radio-option:hover,
+        .checkbox-option:hover {
+            background-color: #FFF5F0;
+        }
+
+        .radio-option label,
+        .checkbox-option label {
+            cursor: pointer;
+            flex: 1;
+            font-size: 1.05em;
+        }
+
+        .submit-button {
+            background: linear-gradient(135deg, #FF9B7A 0%, #FF6B45 100%);
+            color: white;
+            border: none;
+            padding: 20px 60px;
+            font-size: 1.4em;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(255, 107, 69, 0.3);
+            transition: transform 0.3s, box-shadow 0.3s;
+            font-weight: bold;
+            margin: 40px auto;
+            display: block;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(255, 107, 69, 0.4);
+        }
+
+        .submit-button:active {
+            transform: translateY(0);
+        }
+
+        .submit-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .slider-container {
+            margin-top: 15px;
+        }
+
+        .slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #FFE4D6;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #FF9B7A;
+            cursor: pointer;
+        }
+
+        .slider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #FF9B7A;
+            cursor: pointer;
+            border: none;
+        }
+
+        .slider-value {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #FF6B45;
+        }
+
+        #thankYouMessage {
+            display: none;
+        }
+
+        .required {
+            color: #FF6B45;
+            margin-left: 5px;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 20px 10px;
+            }
+
+            .header {
+                padding: 30px 20px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .header p {
+                font-size: 1.1em;
+            }
+            
+            .purpose-section,
+            .survey-section {
+                padding: 25px 20px;
+                margin-bottom: 25px;
+            }
+
+            .purpose-section h2 {
+                font-size: 1.5em;
+            }
+
+            .purpose-section p {
+                font-size: 1.1em;
+            }
+            
+            .section-title {
+                font-size: 1.3em;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .section-number {
+                margin-bottom: 10px;
+                margin-right: 0;
+            }
+
+            .question {
+                padding: 15px;
+            }
+
+            .question-text {
+                font-size: 1em;
+            }
+
+            .question-type {
+                font-size: 0.85em;
+            }
+
+            .submit-button {
+                padding: 15px 40px;
+                font-size: 1.2em;
+                width: 100%;
+                margin: 30px auto;
+            }
+
+            .radio-option,
+            .checkbox-option {
+                padding: 10px;
+                font-size: 0.95em;
+            }
+
+            input[type="text"],
+            input[type="number"],
+            textarea {
+                font-size: 16px; /* 防止iOS自動縮放 */
+                padding: 10px;
+            }
+
+            .slider-value {
+                font-size: 1.3em;
+            }
+
+            #q18_name_job input {
+                width: 100% !important;
+                margin-right: 0 !important;
+                margin-bottom: 10px;
+            }
+
+            .footer {
+                padding: 20px;
+            }
+
+            .footer h3 {
+                font-size: 1.4em;
+            }
+
+            .special-note {
+                padding: 20px;
+            }
+
+            .special-note h4 {
+                font-size: 1.2em;
+            }
+        }
+
+        /* 小手機 */
+        @media (max-width: 480px) {
+            body {
+                padding: 15px 8px;
+            }
+
+            .header {
+                padding: 25px 15px;
+            }
+
+            .header h1 {
+                font-size: 1.5em;
+            }
+
+            .header p {
+                font-size: 1em;
+            }
+
+            .purpose-section,
+            .survey-section {
+                padding: 20px 15px;
+            }
+
+            .purpose-section h2 {
+                font-size: 1.3em;
+            }
+
+            .purpose-section p {
+                font-size: 1em;
+                line-height: 1.8;
+            }
+
+            .section-title {
+                font-size: 1.1em;
+            }
+
+            .section-number {
+                width: 35px;
+                height: 35px;
+                line-height: 35px;
+                font-size: 1em;
+            }
+
+            .question {
+                padding: 12px;
+                margin-bottom: 12px;
+            }
+
+            .question-text {
+                font-size: 0.95em;
+            }
+
+            .question-type {
+                font-size: 0.8em;
+                padding: 4px 12px;
+            }
+
+            .submit-button {
+                padding: 12px 30px;
+                font-size: 1.1em;
+            }
+
+            .radio-option label,
+            .checkbox-option label {
+                font-size: 0.9em;
+            }
+
+            textarea {
+                min-height: 80px;
+            }
+
+            .special-note h4 {
+                font-size: 1.1em;
+            }
+
+            .highlight {
+                padding: 2px 6px;
+            }
+        }
+
+        /* 平板 */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .container {
+                max-width: 900px;
+            }
+
+            .header h1 {
+                font-size: 2.5em;
+            }
+
+            .survey-section {
+                padding: 35px;
+            }
+        }
+
+        /* 大螢幕優化 */
+        @media (min-width: 1400px) {
+            .container {
+                max-width: 1200px;
+            }
+        }
+
+        /* 確保表單元素在觸控裝置上易於操作 */
+        @media (hover: none) and (pointer: coarse) {
+            .radio-option,
+            .checkbox-option {
+                min-height: 48px; /* 觸控裝置建議的最小觸控區域 */
+                padding: 12px;
+            }
+
+            input[type="radio"],
+            input[type="checkbox"] {
+                width: 22px;
+                height: 22px;
+            }
+
+            .submit-button {
+                min-height: 48px;
+            }
+        }
+
+        /* 橫向模式優化 */
+        @media (max-width: 768px) and (orientation: landscape) {
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.6em;
+            }
+
+            .survey-section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>BGI 短影音課程後問卷</h1>
+            <p>整合你的內容大腦 — 短影音定位與主題整合系統</p>
+        </div>
+
+        <!-- Welcome Message -->
+        <div class="purpose-section">
+            <div style="text-align: center; padding: 20px;">
+                <h2 style="font-size: 2em; color: #FF6B45; margin-bottom: 20px;">親愛的學員,感謝你今天的參與!</h2>
+                <p style="font-size: 1.3em; line-height: 2; color: #333;">
+                    今天我們一起經歷了<strong style="color: #FF9B7A;">全腦整合的連線</strong>,<br>
+                    也開始<strong style="color: #FF9B7A;">整理你的內容大腦</strong>。<br><br>
+                    你的每一個回饋,都會讓這堂課更完整,<br>
+                    也能幫助更多跟你一樣想做短影音的人。<br><br>
+                    <span style="color: #FF6B45; font-size: 1.1em;">請誠實地分享你的感受,這份問卷大約需要 5-8 分鐘。</span>
+                </p>
+            </div>
+        </div>
+
+        <form id="surveyForm" onsubmit="submitForm(event)">
+
+        <!-- Section 1 -->
+        <div class="survey-section">
+            <div class="section-title">
+                <span class="section-number">1</span>
+                課前課後對比
+            </div>
+            
+            <div class="question">
+                <div class="question-text">Q1. 課前,你對自己「一分鐘自我介紹」的流暢度打幾分?<span class="required">*</span></div>
+                <span class="question-type">量表題 1-10分</span>
+                <div class="slider-container">
+                    <input type="range" min="1" max="10" value="5" class="slider" name="q1_before" id="q1" required
+                           oninput="document.getElementById('q1-value').textContent = this.value">
+                    <div class="slider-value" id="q1-value">5</div>
+                </div>
+            </div>
+
+            <div class="question">
+                <div class="question-text">Q2. 課後,你對自己「一分鐘自我介紹」的流暢度打幾分?<span class="required">*</span></div>
+                <span class="question-type">量表題 1-10分</span>
+                <div class="slider-container">
+                    <input type="range" min="1" max="10" value="5" class="slider" name="q2_after" id="q2" required
+                           oninput="document.getElementById('q2-value').textContent = this.value">
+                    <div class="slider-value" id="q2-value">5</div>
+                </div>
+            </div>
+
+            <div class="question">
+                <div class="question-text">Q3. 現在,你能清楚說出自己的完整定位嗎?<br>
+                (包含:職位/職稱、職務內容、受眾、受眾痛點)<span class="required">*</span></div>
+                <span class="question-type">單選題</span>
+                <div class="question-options">
+                    <div class="radio-option">
+                        <input type="radio" id="q3_1" name="q3_positioning" value="可以,非常清楚" required>
+                        <label for="q3_1">可以,非常清楚</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="q3_2" name="q3_positioning" value="大致可以,還需要整理">
+                        <label for="q3_2">大致可以,還需要整理</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="q3_3" name="q3_positioning" value="還是有點模糊">
+                        <label for="q3_3">還是有點模糊</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="q3_4" name="q3_positioning" value="完全不清楚">
+                        <label for="q3_4">完全不清楚</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="special-note">
+                <h4>✨ 即時驗證題(重點!)</h4>
+                <div class="question-text">Q4. 請用一分鐘,<span class="highlight">現在就</span>寫下你的自我介紹:<span class="required">*</span></div>
+                <textarea name="q4_self_intro" placeholder="請在這裡寫下你的一分鐘自我介紹..." required></textarea>
+            </div>
+        </div>
+
+        <!-- Section 2 -->
+        <div class="survey-section">
+            <div class="section-title">
+                <span class="section-number">2</span>
+                BGI全腦整合法體驗
+            </div>
+
+            <div class="question">
+                <div class="question-text">Q5. 在跟隨講師進行「喝水、能量哈欠、掛勾、展臂鬆肩」等動作後,你的狀態有什麼變化?<span class="required">*</span></div>
+                <span class="question-type">單選題</span>
+                <div class="question-options">
+                    <div class="radio-option">
+                        <input type="radio" id="q5_1" name="q5_bgi_change" value="覺得腦袋變清晰,比較放鬆" required>
+                        <label for="q5_1">覺得腦袋變清晰,比較放鬆</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="q5_2" name="q5_bgi_change" value="覺得身體變熱,專注力提升">
+                        <label for="q5_2">覺得身體變熱,專注力提升</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="q5_3" name="q5_bgi_change" value="沒有太大感覺">
+                        <label for="q5_3">沒有太大感覺</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="q5_4" name="q5_bgi_change" value="other">
+                        <label for="q5_4">其他:</label>
+                        <input type="text" name="q5_bgi_change_other" placeholder="請說明..." style="margin-left: 10px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3 -->
+        <div class="survey-section">
+            <div class="section-title">
+                <span class="section-number">3</span>
+                內容實用性評估
+            </div>
+
+            <div class="question">
+                <div class="question-text">Q6. 這堂課中,哪個概念或內容最衝擊你?(讓你恍然大悟的那種感覺)<span class="required">*</span></div>
+                <span class="question-type">開放題</span>
+                <div class="question-options" style="margin-bottom: 10px;">
+                    例如:自我定位的重要性、主題方向規劃、BGI全腦整合法、內容深度概念等...
+                </div>
+                <textarea name="q8_most_impact" placeholder="請分享讓你最有感觸的部分..." required></textarea>
+            </div>
+
+            <div class="question">
+                <div class="question-text">Q7. 填寫「職位-職務表格」時,你遇到最大的困難是?</div>
+                <span class="question-type">複選題</span>
+                <div class="question-options">
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="q9_1" name="q9_difficulty" value="不知道自己的職務內容有哪些">
+                        <label for="q9_1">不知道自己的職務內容有哪些</label>
+                    </div>
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="q9_2" name="q9_difficulty" value="不清楚受眾是誰">
+                        <label for="q9_2">不清楚受眾是誰</label>
+                    </div>
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="q9_3" name="q9_difficulty" value="找不到受眾的真正痛點">
+                        <label for="q9_3">找不到受眾的真正痛點</label>
+                    </div>
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="q9_4" name="q9_difficulty" value="不知道怎麼規劃主題">
+                        <label for="q9_4">不知道怎麼規劃主題</label>
+                    </div>
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="q9_5" name="q9_difficulty" value="沒什麼困難">
+                        <label for="q9_5">沒什麼困難</label>
+                    </div>
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="q9_6" name="q9_difficulty" value="other">
+                        <label for="q9_6">其他:</label>
+                        <input type="text" name="q9_difficulty_other" placeholder="請說明..." style="margin-left: 10px;">
+                    </div>
+                </div>
+            </div>
+
+            <div class="special-note">
+                <h4>💎 內容深度理解</h4>
+                <div class="question-text">Q8. 你理解「表像知識→有點意思→內化思維」這三層內容深度的差異嗎?<span class="required">*</span></div>
+                <span class="question-type">單選題</span>
+                <div class="question-options">
+                    <div class="radio-option">
+                        <input type="radio" id="q10_1" name="q10_depth_understanding" value="完全理解,知道怎麼應用" required>
+                        <label for="q10_1">完全理解,知道怎麼應用</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="q10_2" name="q10_depth_understanding" value="有概念,但不確定怎麼做">
+                        <label for="q10_2">有概念,但不確定怎麼做</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="q10_3" name="q10_depth_understanding" value="聽過但不太懂">
+                        <label for="q10_3">聽過但不太懂</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="q10_4" name="q10_depth_understanding" value="完全不懂">
+                        <label for="q10_4">完全不懂</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 4 -->
+        <div class="survey-section">
+            <div class="section-title">
+                <span class="section-number">4</span>
+                行動意願與需求
+            </div>
+
+            <div class="question">
+                <div class="question-text">Q9. 你第一支短影音打算拍什麼主題?</div>
+                <span class="question-type">開放題</span>
+                <textarea name="q11_first_video_topic" placeholder="請分享你的想法..."></textarea>
+            </div>
+
+            <div class="question">
+                <div class="question-text">Q10. 你預計多久內會開始拍攝第一支短影音?<span class="required">*</span></div>
+                <span class="question-type">單選題</span>
+                <div class="question-options">
+                    <div class="radio-option">
+                        <input type="radio" id="q12_1" name="q12_timeline" value="本週內(7天內)" required>
+                        <label for="q12_1">本週內(7天內)</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="q12_2" name="q12_timeline" value="本月內(30天內)">
+                        <label for="q12_2">本月內(30天內)</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="q12_3" name="q12_timeline" value="還在思考規劃中">
+                        <label for="q12_3">還在思考規劃中</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="q12_4" name="q12_timeline" value="不確定">
+                        <label for="q12_4">不確定</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="question">
+                <div class="question-text">Q11. 開始拍攝後,你最需要哪方面的支持?</div>
+                <span class="question-type">複選題</span>
+                <div class="question-options">
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="q13_1" name="q13_support" value="一對一定位諮詢">
+                        <label for="q13_1">一對一定位諮詢</label>
+                    </div>
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="q13_2" name="q13_support" value="腳本批改與優化">
+                        <label for="q13_2">腳本批改與優化</label>
+                    </div>
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="q13_3" name="q13_support" value="社群陪伴與打氣">
+                        <label for="q13_3">社群陪伴與打氣</label>
+                    </div>
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="q13_4" name="q13_support" value="工具模板(如主題表格、腳本模板)">
+                        <label for="q13_4">工具模板(如主題表格、腳本模板)</label>
+                    </div>
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="q13_5" name="q13_support" value="拍攝技巧指導">
+                        <label for="q13_5">拍攝技巧指導</label>
+                    </div>
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="q13_6" name="q13_support" value="我可以自己來">
+                        <label for="q13_6">我可以自己來</label>
+                    </div>
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="q13_7" name="q13_support" value="other">
+                        <label for="q13_7">其他:</label>
+                        <input type="text" name="q13_support_other" placeholder="請說明..." style="margin-left: 10px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 5 -->
+        <div class="survey-section">
+            <div class="section-title">
+                <span class="section-number">5</span>
+                課程優化建議
+            </div>
+
+            <div class="question">
+                <div class="question-text">Q12. 關於今天2小時的課程長度,你覺得?<span class="required">*</span></div>
+                <span class="question-type">單選題</span>
+                <div class="question-options">
+                    <div class="radio-option">
+                        <input type="radio" id="q14_1" name="q14_duration" value="太長了,有點吃不消" required>
+                        <label for="q14_1">太長了,有點吃不消</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="q14_2" name="q14_duration" value="剛剛好,內容很充實">
+                        <label for="q14_2">剛剛好,內容很充實</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="q14_3" name="q14_duration" value="太短了,希望更深入">
+                        <label for="q14_3">太短了,希望更深入</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="q14_4" name="q14_duration" value="other">
+                        <label for="q14_4">其他建議:</label>
+                        <input type="text" name="q14_duration_other" placeholder="請說明..." style="margin-left: 10px;">
+                    </div>
+                </div>
+            </div>
+
+            <div class="question">
+                <div class="question-text">Q13. 哪個部分你希望可以講得更深入?</div>
+                <span class="question-type">複選題</span>
+                <div class="question-options">
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="q15_1" name="q15_deeper" value="BGI全腦整合動作的原理與應用">
+                        <label for="q15_1">BGI全腦整合動作的原理與應用</label>
+                    </div>
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="q15_2" name="q15_deeper" value="自我定位的挖掘方法">
+                        <label for="q15_2">自我定位的挖掘方法</label>
+                    </div>
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="q15_3" name="q15_deeper" value="主題方向的規劃技巧">
+                        <label for="q15_3">主題方向的規劃技巧</label>
+                    </div>
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="q15_4" name="q15_deeper" value="內容結構與腳本撰寫">
+                        <label for="q15_4">內容結構與腳本撰寫</label>
+                    </div>
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="q15_5" name="q15_deeper" value="差異化人設打造">
+                        <label for="q15_5">差異化人設打造</label>
+                    </div>
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="q15_6" name="q15_deeper" value="實際拍攝示範">
+                        <label for="q15_6">實際拍攝示範</label>
+                    </div>
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="q15_7" name="q15_deeper" value="other">
+                        <label for="q15_7">其他:</label>
+                        <input type="text" name="q15_deeper_other" placeholder="請說明..." style="margin-left: 10px;">
+                    </div>
+                </div>
+            </div>
+
+            <div class="question">
+                <div class="question-text">Q14. 這堂課解決了你在短影音創作上的困擾嗎?解決了多少?<span class="required">*</span></div>
+                <span class="question-type">量表題 0-100%</span>
+                <div class="slider-container">
+                    <input type="range" min="0" max="100" value="50" class="slider" name="q16_solve_rate" id="q16" required
+                           oninput="document.getElementById('q16-value').textContent = this.value + '%'">
+                    <div class="slider-value" id="q16-value">50%</div>
+                </div>
+            </div>
+
+            <div class="question">
+                <div class="question-text">Q15. 給Betty老師的一句話(建議、感謝或任何想說的)<span class="required">*</span></div>
+                <span class="question-type">開放題</span>
+                <textarea name="q17_message_to_betty" placeholder="請寫下你想對Betty說的話..." required></textarea>
+            </div>
+        </div>
+
+        <!-- Section 6 -->
+        <div class="survey-section">
+            <div class="section-title">
+                <span class="section-number">6</span>
+                見證收集與推薦
+            </div>
+
+            <div class="question">
+                <div class="question-text">Q16. 你願意提供真實姓名與職業作為課程見證嗎?</div>
+                <span class="question-type">單選題</span>
+                <div class="question-options">
+                    <div class="radio-option">
+                        <input type="radio" id="q18_1" name="q18_testimonial" value="願意" onclick="document.getElementById('q18_name_job').style.display='block'">
+                        <label for="q18_1">願意(請填寫:姓名 / 職業)</label>
+                    </div>
+                    <div id="q18_name_job" style="display:none; margin-left: 30px; margin-top: 10px;">
+                        <input type="text" name="q18_name" placeholder="您的姓名" style="width: 48%; margin-right: 4%;">
+                        <input type="text" name="q18_job" placeholder="您的職業" style="width: 48%;">
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="q18_2" name="q18_testimonial" value="只願意提供職業" onclick="document.getElementById('q18_name_job').style.display='none'">
+                        <label for="q18_2">只願意提供職業</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="q18_3" name="q18_testimonial" value="只願意提供暱稱" onclick="document.getElementById('q18_name_job').style.display='none'">
+                        <label for="q18_3">只願意提供暱稱</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="q18_4" name="q18_testimonial" value="希望完全匿名" onclick="document.getElementById('q18_name_job').style.display='none'">
+                        <label for="q18_4">希望完全匿名</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="question">
+                <div class="question-text">Q17. 如果有進階的「短影音陪跑」或「全腦整合教練課」,協助你每個月穩定產出,你會感興趣嗎?<span class="required">*</span></div>
+                <span class="question-type">單選題</span>
+                <div class="question-options">
+                    <div class="radio-option">
+                        <input type="radio" id="q19_1" name="q19_advanced_interest" value="非常有興趣,請通知我" required>
+                        <label for="q19_1">非常有興趣,請通知我</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="q19_2" name="q19_advanced_interest" value="有點興趣,想先了解內容與價格">
+                        <label for="q19_2">有點興趣,想先了解內容與價格</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="q19_3" name="q19_advanced_interest" value="目前沒興趣">
+                        <label for="q19_3">目前沒興趣</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="q19_4" name="q19_advanced_interest" value="不確定">
+                        <label for="q19_4">不確定</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="submit-button" id="submitBtn">✨ 送出問卷 ✨</button>
+
+        </form>
+
+        <!-- Thank You Message -->
+        <div id="thankYouMessage">
+            <div class="header">
+                <h1>🎉 感謝你完成問卷!</h1>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <h3>🎉 感謝你完成問卷!</h3>
+            <p style="font-size: 1.2em; color: #666; margin-top: 15px;">
+                你的每一個回饋,都讓BGI短影音課程更完整<br>
+                期待看到你的第一支短影音誕生!
+            </p>
+        </div>
+    </div>
+</body>
+</html>
