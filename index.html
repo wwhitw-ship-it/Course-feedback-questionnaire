@@ -958,9 +958,9 @@
             </div>
 
             <div class="question">
-                <div class="question-text">Q15. 給Betty老師的一句話(建議、感謝或任何想說的)<span class="required">*</span></div>
+                <div class="question-text">Q15. 用一句話形容這堂課<span class="required">*</span></div>
                 <span class="question-type">開放題</span>
-                <textarea name="q17_message_to_betty" placeholder="請寫下你想對Betty說的話..." required></textarea>
+                <textarea name="q17_message_to_betty" placeholder="請寫下你對這堂課的感受..." required></textarea>
             </div>
         </div>
 
@@ -972,28 +972,34 @@
             </div>
 
             <div class="question">
-                <div class="question-text">Q16. 你願意提供真實姓名與職業作為課程見證嗎?</div>
+                <div class="question-text">Q16. 你會推薦這堂課給朋友嗎?<span class="required">*</span></div>
                 <span class="question-type">單選題</span>
                 <div class="question-options">
                     <div class="radio-option">
-                        <input type="radio" id="q18_1" name="q18_testimonial" value="願意" onclick="document.getElementById('q18_name_job').style.display='block'">
-                        <label for="q18_1">願意(請填寫:姓名 / 職業)</label>
-                    </div>
-                    <div id="q18_name_job" style="display:none; margin-left: 30px; margin-top: 10px;">
-                        <input type="text" name="q18_name" placeholder="您的姓名" style="width: 48%; margin-right: 4%;">
-                        <input type="text" name="q18_job" placeholder="您的職業" style="width: 48%;">
+                        <input type="radio" id="q18_1" name="q18_testimonial" value="非常推薦" required>
+                        <label for="q18_1">非常推薦</label>
                     </div>
                     <div class="radio-option">
-                        <input type="radio" id="q18_2" name="q18_testimonial" value="只願意提供職業" onclick="document.getElementById('q18_name_job').style.display='none'">
-                        <label for="q18_2">只願意提供職業</label>
+                        <input type="radio" id="q18_2" name="q18_testimonial" value="會推薦">
+                        <label for="q18_2">會推薦</label>
                     </div>
                     <div class="radio-option">
-                        <input type="radio" id="q18_3" name="q18_testimonial" value="只願意提供暱稱" onclick="document.getElementById('q18_name_job').style.display='none'">
-                        <label for="q18_3">只願意提供暱稱</label>
+                        <input type="radio" id="q18_3" name="q18_testimonial" value="可能會推薦">
+                        <label for="q18_3">可能會推薦</label>
                     </div>
                     <div class="radio-option">
-                        <input type="radio" id="q18_4" name="q18_testimonial" value="希望完全匿名" onclick="document.getElementById('q18_name_job').style.display='none'">
-                        <label for="q18_4">希望完全匿名</label>
+                        <input type="radio" id="q18_4" name="q18_testimonial" value="不會推薦">
+                        <label for="q18_4">不會推薦</label>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 25px;">
+                    <div class="question-text">如果要給這堂課打分數,你會打幾分?<span class="required">*</span></div>
+                    <span class="question-type">量表題 1-10分</span>
+                    <div class="slider-container">
+                        <input type="range" min="1" max="10" value="5" class="slider" name="q18_score" id="q18_score" required
+                               oninput="document.getElementById('q18-score-value').textContent = this.value + '分'">
+                        <div class="slider-value" id="q18-score-value">5分</div>
                     </div>
                 </div>
             </div>
